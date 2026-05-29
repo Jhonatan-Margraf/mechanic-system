@@ -37,6 +37,9 @@ class ServicoRow:
     saldo: float
     pago: float
     comentario: str
+    veiculo: str = ""
+    ano: str = ""
+    ordem_json: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -86,6 +89,23 @@ class ClienteRepo:
             )
 
     @staticmethod
+    def atualizar(
+        cliente_id: int | str,
+        nome: str,
+        cpf: str,
+        endereco: str,
+        cidade: str,
+        telefone: str,
+        placa: str,
+    ) -> None:
+        with get_conn(write=True) as conn:
+            conn.execute(
+                "UPDATE clientes SET nome=?, cpf=?, endereco=?, cidade=?, telefone=?, placa=? "
+                "WHERE id=?",
+                (nome, cpf, endereco, cidade, telefone, placa, cliente_id),
+            )
+
+    @staticmethod
     def excluir(cliente_id: int | str) -> None:
         """Delete client and all their services atomically."""
         with get_conn(write=True) as conn:
@@ -121,14 +141,19 @@ class ServicoRepo:
         saldo: float,
         pago: float,
         comentario: str,
-    ) -> None:
+        veiculo: str = "",
+        ano: str = "",
+        ordem_json: str = "",
+    ) -> int:
+        """Insert a service record and return the new row id."""
         with get_conn(write=True) as conn:
-            conn.execute(
+            cur = conn.execute(
                 "INSERT INTO servicos "
-                "(cliente_id, data, placa, servico, saldo, pago, comentario) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (cliente_id, data, placa.upper(), servico, saldo, pago, comentario),
+                "(cliente_id, data, placa, servico, saldo, pago, comentario, veiculo, ano, ordem_json) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (cliente_id, data, placa.upper(), servico, saldo, pago, comentario, veiculo, ano, ordem_json),
             )
+            return cur.lastrowid
 
     @staticmethod
     def atualizar(
@@ -139,14 +164,26 @@ class ServicoRepo:
         pago: float,
         comentario: str,
         data: str,
+        veiculo: str = "",
+        ano: str = "",
+        ordem_json: str | None = None,
     ) -> None:
+        """Update a service record. Pass ordem_json=None to leave it unchanged."""
         with get_conn(write=True) as conn:
-            conn.execute(
-                "UPDATE servicos "
-                "SET placa=?, servico=?, saldo=?, pago=?, comentario=?, data=? "
-                "WHERE id=?",
-                (placa.upper(), servico, saldo, pago, comentario, data, servico_id),
-            )
+            if ordem_json is None:
+                conn.execute(
+                    "UPDATE servicos "
+                    "SET placa=?, servico=?, saldo=?, pago=?, comentario=?, data=?, veiculo=?, ano=? "
+                    "WHERE id=?",
+                    (placa.upper(), servico, saldo, pago, comentario, data, veiculo, ano, servico_id),
+                )
+            else:
+                conn.execute(
+                    "UPDATE servicos "
+                    "SET placa=?, servico=?, saldo=?, pago=?, comentario=?, data=?, veiculo=?, ano=?, ordem_json=? "
+                    "WHERE id=?",
+                    (placa.upper(), servico, saldo, pago, comentario, data, veiculo, ano, ordem_json, servico_id),
+                )
 
     @staticmethod
     def excluir(servico_id: int | str) -> None:

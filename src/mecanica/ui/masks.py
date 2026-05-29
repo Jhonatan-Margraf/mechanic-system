@@ -151,5 +151,10 @@ def _make_mask(formatter):
     return apply_fn
 
 
+def _fmt_ano(digits: str) -> str:
+    return digits[:4]
+
+
 aplicar_mascara_cpf      = _make_mask(_fmt_cpf)
 aplicar_mascara_telefone = _make_mask(_fmt_telefone)
+aplicar_mascara_ano      = _make_mask(_fmt_ano)

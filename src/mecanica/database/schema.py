@@ -34,6 +34,14 @@ def iniciar_db() -> None:
                 saldo      REAL,
                 pago       REAL,
                 comentario TEXT,
+                veiculo    TEXT,
+                ano        TEXT,
                 FOREIGN KEY(cliente_id) REFERENCES clientes(id)
             )
         """)
+        # Migrations: add columns if missing in older databases
+        for col in ("veiculo TEXT", "ano TEXT", "ordem_json TEXT"):
+            try:
+                cur.execute(f"ALTER TABLE servicos ADD COLUMN {col}")
+            except Exception:
+                pass  # Column already exists

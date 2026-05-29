@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import threading
-from tkinter import ttk
 
 import customtkinter as ctk
 
@@ -11,9 +10,9 @@ from src.mecanica.config import BACKUP_INTERVALO_MIN
 from src.mecanica.database.schema import iniciar_db
 from src.mecanica.integracoes.drive_backup import DRIVE_DISPONIVEL, DriveBackup
 from src.mecanica.theme import (
-    COR_BRANCO, COR_CARD, COR_FUNDO, COR_SIDEBAR, COR_SIDEBAR_ATIVO,
+    COR_BRANCO, COR_FUNDO, COR_SIDEBAR,
     COR_SIDEBAR_HOVER, COR_TEXTO_ESCURO,
-    FONTE_CABECALHO, FONTE_LOGO, FONTE_SIDEBAR, FONTE_SMALL, FONTE_TABELA,
+    FONTE_LOGO, FONTE_SIDEBAR, FONTE_SMALL,
 )
 from src.mecanica.ui.pages.clientes import PaginaClientes
 from src.mecanica.ui.pages.detalhes import PaginaDetalhes
@@ -26,16 +25,17 @@ class AppOficina(ctk.CTk):
         self.title("Oficina Pro — Gestão")
         self.geometry("1200x750")
         self.minsize(1000, 650)
+        self.after(100, lambda: self.wm_attributes("-zoomed", True))
         self.configure(fg_color=COR_FUNDO)
 
         iniciar_db()
-        self._configurar_estilo_tabela()
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
         self.cliente_selecionado = None
         self._pagina_atual = None
+        self.ordem_rascunho: dict | None = None
 
         self.backup = DriveBackup(on_status_change=self._atualizar_status_drive)
         self._criar_sidebar()
@@ -59,13 +59,19 @@ class AppOficina(ctk.CTk):
         for w in self.area.winfo_children():
             w.destroy()
 
+    def _salvar_rascunho_ordem(self) -> None:
+        if isinstance(self._pagina_atual, PaginaOrdem):
+            self.ordem_rascunho = self._pagina_atual._capturar_estado()
+
     def navegar_clientes(self) -> None:
+        self._salvar_rascunho_ordem()
         self._limpar()
         pagina = PaginaClientes(self)
         pagina.montar(self.area)
         self._pagina_atual = pagina
 
     def navegar_detalhes(self) -> None:
+        self._salvar_rascunho_ordem()
         self._limpar()
         pagina = PaginaDetalhes(self)
         pagina.montar(self.area)
@@ -75,6 +81,8 @@ class AppOficina(ctk.CTk):
         self._limpar()
         pagina = PaginaOrdem(self)
         pagina.montar(self.area)
+        if self.ordem_rascunho:
+            pagina._restaurar_estado(self.ordem_rascunho)
         self._pagina_atual = pagina
 
     # ------------------------------------------------------------------
@@ -82,29 +90,40 @@ class AppOficina(ctk.CTk):
     # ------------------------------------------------------------------
 
     def _criar_sidebar(self) -> None:
-        sb = ctk.CTkFrame(self, fg_color=COR_SIDEBAR, corner_radius=0, width=220)
+        sb = ctk.CTkFrame(self, fg_color=COR_SIDEBAR, corner_radius=0, width=200)
         sb.grid(row=0, column=0, sticky="nsew")
         sb.grid_propagate(False)
 
-        logo_frame = ctk.CTkFrame(sb, fg_color="#1A6B40", corner_radius=12, width=160, height=64)
-        logo_frame.pack(pady=(30, 30), padx=30)
-        logo_frame.pack_propagate(False)
-        ctk.CTkLabel(logo_frame, text="🔧 OFICINA\nPRO", font=FONTE_LOGO,
-                     text_color=COR_BRANCO, justify="center").place(relx=0.5, rely=0.5, anchor="center")
+        # Logo
+        logo_frame = ctk.CTkFrame(sb, fg_color="transparent")
+        logo_frame.pack(pady=(32, 0), padx=20, fill="x")
+        ctk.CTkLabel(
+            logo_frame,
+            text="Mecânica SP",
+            font=FONTE_LOGO,
+            text_color=COR_BRANCO,
+            justify="center",
+        ).pack(anchor="center")
 
-        def btn_nav(texto, comando):
-            b = ctk.CTkButton(sb, text=texto, font=FONTE_SIDEBAR, anchor="w",
-                              fg_color="transparent", hover_color=COR_SIDEBAR_HOVER,
-                              text_color=COR_BRANCO, height=48, corner_radius=10,
-                              command=comando)
-            b.pack(fill="x", padx=15, pady=3)
+        # Nav buttons
+        def btn_nav(texto, comando, ativo=False):
+            b = ctk.CTkButton(
+                sb, text=texto, font=FONTE_SIDEBAR, anchor="w",
+                fg_color=COR_BRANCO if ativo else "transparent",
+                text_color=COR_SIDEBAR if ativo else COR_BRANCO,
+                hover_color=COR_SIDEBAR_HOVER,
+                height=46, corner_radius=8,
+                command=comando,
+            )
+            b.pack(fill="x", padx=14, pady=(14, 0))
             return b
 
-        btn_nav("  👥  Clientes", self.navegar_clientes)
-        btn_nav("  📋  Ordem",    self.navegar_ordem)
+        btn_nav("  👥  Clientes", self.navegar_clientes, ativo=False)
+        btn_nav("  📋  Ordem",    self.navegar_ordem,    ativo=False)
 
-        drive_frame = ctk.CTkFrame(sb, fg_color="#1A6B40", corner_radius=10)
-        drive_frame.pack(fill="x", padx=15, pady=(20, 6))
+        # Drive status card
+        drive_frame = ctk.CTkFrame(sb, fg_color="#207244", corner_radius=10)
+        drive_frame.pack(fill="x", padx=14, pady=(24, 6))
 
         ctk.CTkLabel(drive_frame, text="Google Drive", font=FONTE_SIDEBAR,
                      text_color=COR_BRANCO).pack(pady=(10, 2))
@@ -114,7 +133,7 @@ class AppOficina(ctk.CTk):
             text="⏳ Aguardando…" if DRIVE_DISPONIVEL else "❌ Libs não instaladas",
             font=FONTE_SMALL,
             text_color="#A8D5B5",
-            wraplength=170,
+            wraplength=160,
         )
         self._lbl_drive_status.pack(pady=(0, 6), padx=8)
 
@@ -129,7 +148,7 @@ class AppOficina(ctk.CTk):
             command=self._backup_manual,
         ).pack(pady=(0, 10), padx=10, fill="x")
 
-        ctk.CTkLabel(sb, text="v3.0 · Oficina Pro", font=("Segoe UI", 11),
+        ctk.CTkLabel(sb, text="v3.0 · Oficina Pro", font=("Arial Bold", 10),
                      text_color="#A8D5B5").pack(side="bottom", pady=18)
 
     # ------------------------------------------------------------------
@@ -154,24 +173,3 @@ class AppOficina(ctk.CTk):
         self.backup.parar_loop()
         self.backup.limpar_temporarios()
         self.destroy()
-
-    # ------------------------------------------------------------------
-    # Table style (shared across pages)
-    # ------------------------------------------------------------------
-
-    def _configurar_estilo_tabela(self) -> None:
-        style = ttk.Style()
-        style.theme_use("default")
-        style.configure("Treeview",
-                        background=COR_CARD, foreground=COR_TEXTO_ESCURO,
-                        rowheight=46, fieldbackground=COR_CARD,
-                        borderwidth=0, relief="flat", font=FONTE_TABELA,
-                        padding=(8, 0))
-        style.configure("Treeview.Heading",
-                        background=COR_SIDEBAR, foreground=COR_BRANCO,
-                        font=FONTE_CABECALHO, borderwidth=1, relief="raised",
-                        padding=(12, 8))
-        style.map("Treeview.Heading", background=[("active", COR_SIDEBAR_HOVER)])
-        style.map("Treeview",
-                  background=[("selected", "#C8E6C9")],
-                  foreground=[("selected", COR_TEXTO_ESCURO)])
