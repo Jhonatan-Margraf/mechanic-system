@@ -2,50 +2,50 @@
 
 # 🔧 Oficina Pro
 
-**Sistema de gerenciamento para oficinas mecânicas**
+**Management system for auto repair shops**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-5.2-green?style=for-the-badge)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![License](https://img.shields.io/badge/Licença-MIT-yellow?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
 
 ---
 
-## Sobre
+## About
 
-O **Oficina Pro** é um sistema desktop para gerenciamento de clientes, serviços e ordens de serviço em oficinas mecânicas. Desenvolvido com Python e interface gráfica moderna via CustomTkinter, conta com backup automático no Google Drive.
-
----
-
-## Funcionalidades
-
-- **Cadastro de clientes** com máscara de CPF e telefone
-- **Ordens de serviço** com controle de status e pagamento
-- **Relatório em HTML** pronto para impressão
-- **Backup automático** no Google Drive via OAuth2
-- **Interface moderna** com tema verde personalizado
+**Oficina Pro** is a desktop system for managing customers, services, and work orders for auto repair shops. Built with Python and a modern GUI via CustomTkinter, it includes automatic backup to Google Drive.
 
 ---
 
-## Pré-requisitos
+## Features
 
-- Python **3.10** ou superior
-- Conta Google (para backup no Drive — opcional)
+- **Customer registration** with CPF and phone number masks
+- **Work orders** with status and payment tracking
+- **HTML report** ready for printing
+- **Automatic backup** to Google Drive via OAuth2
+- **Modern interface** with a custom green theme
 
 ---
 
-## Instalação
+## Prerequisites
 
-### 1. Clone o repositório
+- Python **3.10** or higher
+- Google account (for Drive backup — optional)
+
+---
+
+## Installation
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/seu-usuario/mecanica.git
+git clone https://github.com/your-username/mecanica.git
 cd mecanica
 ```
 
-### 2. Crie e ative o ambiente virtual
+### 2. Create and activate the virtual environment
 
 ```bash
 python -m venv .venv
@@ -57,29 +57,29 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Instale as dependências
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure as variáveis de ambiente
+### 4. Set up environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Edite o `.env` com suas credenciais Google (veja a seção [Configurar Google Drive](#configurar-google-drive)).
+Edit `.env` with your Google credentials (see the [Configure Google Drive](#configure-google-drive) section).
 
 ---
 
-## Como rodar
+## Running the app
 
 ```bash
 python app.py
 ```
 
-Para popular o banco com dados de teste:
+To populate the database with test data:
 
 ```bash
 python scripts/seed.py
@@ -87,73 +87,73 @@ python scripts/seed.py
 
 ---
 
-## Configurar Google Drive
+## Configure Google Drive
 
-O backup é **opcional**. Sem ele, o sistema funciona normalmente — apenas sem sincronização em nuvem.
+Backup is **optional**. Without it, the system works normally — just without cloud syncing.
 
-Para ativar:
+To enable it:
 
-1. Acesse [Google Cloud Console](https://console.cloud.google.com/)
-2. Crie um projeto e habilite a **Google Drive API**
-3. Em **Credenciais**, crie um *OAuth 2.0 Client ID* do tipo **Desktop App**
-4. Baixe o arquivo `credentials.json` e coloque na raiz do projeto
-5. Na primeira execução, um navegador abrirá para autorização — o `token.json` será gerado automaticamente
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project and enable the **Google Drive API**
+3. Under **Credentials**, create an *OAuth 2.0 Client ID* of type **Desktop App**
+4. Download the `credentials.json` file and place it in the project root
+5. On first run, a browser window will open for authorization — `token.json` will be generated automatically
 
-> **Atenção:** nunca suba `credentials.json` ou `token.json` para o repositório.
+> **Warning:** never commit `credentials.json` or `token.json` to the repository.
 
 ---
 
-## Estrutura do projeto
+## Project structure
 
 ```
 mecanica/
 ├── app.py                    # Entry point
 ├── requirements.txt
 ├── .env.example
-├── app_mecanica.spec         # Build PyInstaller
+├── app_mecanica.spec         # PyInstaller build
 ├── scripts/
-│   └── seed.py               # Dados de teste
+│   └── seed.py               # Test data
 └── src/mecanica/
-    ├── config.py             # Caminhos e constantes
-    ├── theme.py              # Paleta de cores e tipografia
-    ├── app.py                # Orquestração principal + sidebar
+    ├── config.py             # Paths and constants
+    ├── theme.py              # Color palette and typography
+    ├── app.py                # Main orchestration + sidebar
     ├── database/
-    │   ├── connection.py     # Conexão SQLite + lock
-    │   ├── schema.py         # Criação do banco
+    │   ├── connection.py     # SQLite connection + lock
+    │   ├── schema.py         # Database creation
     │   └── repositories.py  # ClienteRepo, ServicoRepo
     ├── domain/
-    │   ├── models.py         # Dataclasses Cliente, Servico
+    │   ├── models.py         # Cliente, Servico dataclasses
     │   ├── formatters.py     # fmt_moeda(), normalizar_placa()
     │   └── pagamento.py      # status_pagamento()
     ├── integracoes/
-    │   └── drive_backup.py   # Backup automático no Drive
+    │   └── drive_backup.py   # Automatic Drive backup
     ├── ui/
-    │   ├── masks.py          # Máscaras CPF e telefone
+    │   ├── masks.py          # CPF and phone masks
     │   ├── widgets.py        # CardEstatistica
     │   ├── modais.py         # ModalNovoCliente, ModalServico
     │   └── pages/
-    │       ├── clientes.py   # Listagem de clientes
-    │       ├── detalhes.py   # Detalhes do cliente
-    │       └── ordem.py      # Ordem de serviço
+    │       ├── clientes.py   # Customer listing
+    │       ├── detalhes.py   # Customer details
+    │       └── ordem.py      # Work order
     └── relatorios/
-        └── ordem_html.py     # Geração de relatório HTML
+        └── ordem_html.py     # HTML report generation
 ```
 
 ---
 
-## Build (executável)
+## Build (executable)
 
-Para gerar um `.exe` standalone com PyInstaller:
+To generate a standalone `.exe` with PyInstaller:
 
 ```bash
 pip install pyinstaller
 pyinstaller app_mecanica.spec
 ```
 
-O executável será gerado em `dist/`.
+The executable will be generated in `dist/`.
 
 ---
 
-## Licença
+## License
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
