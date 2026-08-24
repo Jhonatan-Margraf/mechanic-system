@@ -1,159 +1,79 @@
 <div align="center">
 
-# 🔧 Oficina Pro
+# Oficina Pro
 
-**Management system for auto repair shops**
+**Sistema de gerenciamento para oficinas mecânicas**
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![CustomTkinter](https://img.shields.io/badge/CustomTkinter-5.2-green?style=for-the-badge)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
+</div>
+
+<p align="center">
+  <em>Projeto privado — este repositório é uma vitrine (case study) do produto.<br>
+  O código-fonte não está disponível publicamente.</em>
+</p>
+
+---
+
+## Demonstração
+
+<div align="center">
+  <img src="./assets/clientes.png" width="560" alt="Aba de clientes do Oficina Pro" />
+  <p><em>Listagem e cadastro de clientes — com máscaras de CPF e telefone</em></p>
+</div>
+
+<br>
+
+<div align="center">
+  <img src="./assets/ordem-servico.png" width="560" alt="Aba de ordem de serviço do Oficina Pro" />
+  <p><em>Ordem de serviço — controle de status e pagamento</em></p>
 </div>
 
 ---
 
-## About
+## Sobre o projeto
 
-**Oficina Pro** is a desktop system for managing customers, services, and work orders for auto repair shops. Built with Python and a modern GUI via CustomTkinter, it includes automatic backup to Google Drive.
+O **Oficina Pro** é um sistema desktop para gerenciamento de clientes, serviços e ordens de serviço em oficinas mecânicas. Desenvolvido com Python e interface gráfica moderna via CustomTkinter, conta com backup automático no Google Drive.
 
----
-
-## Features
-
-- **Customer registration** with CPF and phone number masks
-- **Work orders** with status and payment tracking
-- **HTML report** ready for printing
-- **Automatic backup** to Google Drive via OAuth2
-- **Modern interface** with a custom green theme
+O objetivo do produto é resolver um problema comum de pequenas oficinas: organizar clientes, veículos e ordens de serviço sem depender de papel, planilhas soltas ou sistemas caros e complicados.
 
 ---
 
-## Prerequisites
+## Principais funcionalidades
 
-- Python **3.10** or higher
-- Google account (for Drive backup — optional)
-
----
-
-## Installation
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-username/mecanica.git
-cd mecanica
-```
-
-### 2. Create and activate the virtual environment
-
-```bash
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Linux / macOS
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Set up environment variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your Google credentials (see the [Configure Google Drive](#configure-google-drive) section).
+- **Cadastro de clientes** com máscara de CPF e telefone
+- **Ordens de serviço** com controle de status e pagamento
+- **Relatório em HTML** pronto para impressão
+- **Backup automático** no Google Drive via OAuth2
+- **Interface moderna** com tema verde personalizado
+- **Executável standalone** — não exige instalação de Python no computador do cliente
 
 ---
 
-## Running the app
+## Stack técnica
 
-```bash
-python app.py
-```
-
-To populate the database with test data:
-
-```bash
-python scripts/seed.py
-```
+| Camada | Tecnologia |
+|---|---|
+| Linguagem | Python 3.10+ |
+| Interface gráfica | CustomTkinter |
+| Banco de dados | SQLite |
+| Backup em nuvem | Google Drive API (OAuth2) |
+| Build / distribuição | PyInstaller |
 
 ---
 
-## Configure Google Drive
+## Sobre este repositório
 
-Backup is **optional**. Without it, the system works normally — just without cloud syncing.
+Este é um repositório **de demonstração**, criado para fins de portfólio. Ele não contém o código-fonte da aplicação — apenas a descrição do produto, prints e a stack utilizada.
 
-To enable it:
+Se você tiver interesse em conhecer mais detalhes técnicos ou ver uma demonstração ao vivo, entre em contato:
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a project and enable the **Google Drive API**
-3. Under **Credentials**, create an *OAuth 2.0 Client ID* of type **Desktop App**
-4. Download the `credentials.json` file and place it in the project root
-5. On first run, a browser window will open for authorization — `token.json` will be generated automatically
-
-> **Warning:** never commit `credentials.json` or `token.json` to the repository.
+📧 jhonatanmargraf@gmail.com
 
 ---
 
-## Project structure
-
-```
-mecanica/
-├── app.py                    # Entry point
-├── requirements.txt
-├── .env.example
-├── app_mecanica.spec         # PyInstaller build
-├── scripts/
-│   └── seed.py               # Test data
-└── src/mecanica/
-    ├── config.py             # Paths and constants
-    ├── theme.py              # Color palette and typography
-    ├── app.py                # Main orchestration + sidebar
-    ├── database/
-    │   ├── connection.py     # SQLite connection + lock
-    │   ├── schema.py         # Database creation
-    │   └── repositories.py  # ClienteRepo, ServicoRepo
-    ├── domain/
-    │   ├── models.py         # Cliente, Servico dataclasses
-    │   ├── formatters.py     # fmt_moeda(), normalizar_placa()
-    │   └── pagamento.py      # status_pagamento()
-    ├── integracoes/
-    │   └── drive_backup.py   # Automatic Drive backup
-    ├── ui/
-    │   ├── masks.py          # CPF and phone masks
-    │   ├── widgets.py        # CardEstatistica
-    │   ├── modais.py         # ModalNovoCliente, ModalServico
-    │   └── pages/
-    │       ├── clientes.py   # Customer listing
-    │       ├── detalhes.py   # Customer details
-    │       └── ordem.py      # Work order
-    └── relatorios/
-        └── ordem_html.py     # HTML report generation
-```
-
----
-
-## Build (executable)
-
-To generate a standalone `.exe` with PyInstaller:
-
-```bash
-pip install pyinstaller
-pyinstaller app_mecanica.spec
-```
-
-The executable will be generated in `dist/`.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+<div align="center">
+  <sub>Desenvolvido por Jhonatan Margraf</sub>
+</div>
